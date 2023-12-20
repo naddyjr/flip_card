@@ -71,8 +71,7 @@ extension on TickerFuture {
 /// ```
 class FlipCard extends StatefulWidget {
   const FlipCard({
-    super.key,
-    this.front,
+    Key? key,
     required this.back,
     this.duration = const Duration(milliseconds: 500),
     this.onFlip,
@@ -84,60 +83,25 @@ class FlipCard extends StatefulWidget {
     this.fill = Fill.none,
     this.initialSide = CardSide.front,
     this.autoFlipDuration,
-  });
+  }) : super(key: key);
 
-  /// The initially shown side of the card
   final CardSide initialSide;
-
-  /// {@macro flip_card.FlipCardTransition.alignment}
   final Alignment alignment;
-
-  /// If the value is set, the flip effect will work automatically after the specified duration.
   final Duration? autoFlipDuration;
-
-  /// {@macro flip_card.FlipCardTransition.front}
-  final Widget front;
-
-  /// {@macro flip_card.FlipCardTransition.back}
   final Widget back;
-
-  /// Assign a controller to the [FlipCard] to control it programmatically
-  ///
-  /// {@macro flip_card_controller.example}
   final FlipCardController? controller;
-
-  /// {@macro flip_card.FlipCardTransition.direction}
   final Axis direction;
-
-  /// {@macro flip_card.FlipCardTransition.fill}
   final Fill fill;
-
-  /// When enabled, the card will flip automatically when touched. This behavior
-  /// can be disabled if this is not desired.
-  ///
-  /// To manually flip a card from your code use a [controller].
   final bool flipOnTouch;
-
-  /// This callback is triggered when the card flipping is started
   final VoidCallback? onFlip;
-
-  /// This callback is triggered when the card flipping is completed
-  /// with the final [CardSide]
   final void Function(CardSide side)? onFlipDone;
-
-  /// The [Duration] a turn animation will take.
   final Duration duration;
 
   @override
   State<StatefulWidget> createState() => FlipCardState();
 }
 
-/// State associated with a [FlipCard] widget.
-///
-/// A [FlipCardState] can be used to [flip], [flipWithoutAnimation], [skew]
-/// or [hint] the associated [FlipCard]
-class FlipCardState extends State<FlipCard>
-    with SingleTickerProviderStateMixin {
+class FlipCardState extends State<FlipCard> with SingleTickerProviderStateMixin {
   late AnimationController controller;
 
   @override
@@ -180,13 +144,6 @@ class FlipCardState extends State<FlipCard>
     super.dispose();
   }
 
-  /// {@template flip_card.FlipCardState.flip}
-  /// Flips the card or reverses the direction of the current animation
-  ///
-  /// You can optionally pass a [targetSide] to show next
-  ///
-  /// This function returns a future that will complete when animation is done
-  /// {@endtemplate}
   Future<void> flip([CardSide? targetSide]) async {
     if (!mounted) return;
     widget.onFlip?.call();
@@ -205,13 +162,6 @@ class FlipCardState extends State<FlipCard>
     widget.onFlipDone?.call(targetSide);
   }
 
-  /// {@template flip_card.FlipCardState.flipWithoutAnimation}
-  /// Flip the card without playing an animation.
-  ///
-  /// You can optionally pass a [targetSide] to show next
-  ///
-  /// This will cancel any ongoing animation.
-  /// {@endtemplate}
   void flipWithoutAnimation([CardSide? targetSide]) {
     controller.stop();
     widget.onFlip?.call();
@@ -230,20 +180,10 @@ class FlipCardState extends State<FlipCard>
     widget.onFlipDone?.call(targetSide);
   }
 
-  /// Return the opposite side from the side currently being shown
   CardSide getOppositeSide() {
     return CardSide.fromAnimationStatus(controller.status).opposite;
   }
 
-  /// {@template flip_card.FlipCardState.skew}
-  /// Skew the card by amount percentage (0 - 1.0)
-  ///
-  /// This can be used with a MouseReagion to indicate that the card can
-  /// be flipped. skew(0) to go back to original.
-  ///
-  /// This function returns a future that resolves when animation
-  /// completes
-  /// {@endtemplate}
   Future<void> skew(double target, {Duration? duration, Curve? curve}) async {
     assert(0 <= target && target <= 1);
 
@@ -266,15 +206,6 @@ class FlipCardState extends State<FlipCard>
     }
   }
 
-  /// {@template flip_card.FlipCardState.hint}
-  /// Triggers a flip animation to [target] and back to 0 and completes in [duration].
-  ///
-  /// Calling [hint] when animating or when back side of the card is showed
-  /// does nothing
-  ///
-  /// This function returns a future that resolves when animation
-  /// completes
-  /// {@endtemplate}
   Future<void> hint({
     double target = 0.2,
     Duration? duration,
@@ -309,7 +240,6 @@ class FlipCardState extends State<FlipCard>
   @override
   Widget build(BuildContext context) {
     final child = FlipCardTransition(
-      front: widget.front,
       back: widget.back,
       animation: controller,
       direction: widget.direction,
@@ -317,7 +247,6 @@ class FlipCardState extends State<FlipCard>
       alignment: widget.alignment,
     );
 
-    /// if we need to flip the card on taps, wrap the content
     if (widget.flipOnTouch) {
       return GestureDetector(
         behavior: HitTestBehavior.translucent,
@@ -328,4 +257,5 @@ class FlipCardState extends State<FlipCard>
 
     return child;
   }
+
 }
